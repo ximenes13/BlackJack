@@ -1,10 +1,194 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
+  <meta charset="utf-8" />
+  <title>Casino Blackjack</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-$END$
+  <div class="table">
+    <div class="top-bar">
+      <div class="bankroll">
+        Bankroll: <span id="bankroll"></span>
+      </div>
+      <div class="message" id="message"></div>
+      <button id="reset" style="background:#95a5a6;color:#111;">Reset</button>
+    </div>
+
+    <div class="dealer-area">
+      <div class="label">Dealer</div>
+      <div class="hand-row">
+        <div class="cards" id="dealer-cards"></div>
+        <div class="total-pill" id="dealer-total"></div>
+      </div>
+    </div>
+
+    <div class="player-area">
+      <div class="label">Player</div>
+      <div id="player-hands"></div>
+
+      <div class="betting-area">
+        <div class="bet-circle">
+          <div style="font-size:0.8rem; letter-spacing:0.08em;">Current Bet</div>
+          <div class="bet-amount" id="bet-display">0</div>
+        </div>
+        <div class="chips">
+          <div class="chip" data-chip="5">5</div>
+          <div class="chip blue" data-chip="25">25</div>
+          <div class="chip green" data-chip="100">100</div>
+        </div>
+        <div class="controls">
+          <button id="deal" class="primary">Deal</button>
+        </div>
+      </div>
+
+      <div class="controls">
+        <button id="hit">Hit</button>
+        <button id="stand">Stand</button>
+        <button id="double" class="primary">Double</button>
+        <button id="split" class="primary">Split</button>
+        <button id="surrender" class="danger">Surrender</button>
+        <button id="insurance">Insurance</button>
+        <button id="next-round" class="primary">Next Round</button>
+      </div>
+    </div>
+
+    <div class="footer">
+      <div>Rules: Blackjack pays 3:2, dealer stands on all 17, one split, late surrender, insurance when dealer shows Ace.</div>
+      <div>Python + Flask demo</div>
+    </div>
+  </div>
+
+  <script>
+    let pendingBet = 0;
+    let state = null;
+
+    function cardNode(cardStr) {
+      const rank = cardStr.slice(0, -1);
+      const suit = cardStr.slice(-1);
+      const node = document.createElement("div");
+      node.className = "card" + (suit === "♥" || suit === "♦" ? " red" : "");
+      node.innerHTML = `
+        <div class="card-rank-top">${rank}</div>
+        <div class="card-suit">${suit}</div>
+        <div class="card-rank-bottom">${rank}</div>
+      `;
+      return node;
+    }
+
+    function renderPlayerHands(hands, totals, activeIndex) {
+      const container = document.getElementById("player-hands");
+      container.innerHTML = "";
+      if (!hands || !hands.length) return;
+
+      hands.forEach((hand, i) => {
+        const row = document.createElement("div");
+        row.className = "hand-row";
+
+        const cardsDiv = document.createElement("div");
+        cardsDiv.className = "cards";
+        hand.forEach(c => cardsDiv.appendChild(cardNode(c)));
+
+        const total = totals[i];
+        const totalDiv = document.createElement("div");
+        totalDiv.className = "total-pill" + (i === activeIndex ? " active" : "");
+        totalDiv.textContent = `Total: ${total}`;
+
+        row.appendChild(cardsDiv);
+        row.appendChild(totalDiv);
+        container.appendChild(row);
+      });
+    }
+
+    function renderDealer(cards, total) {
+      const cardsDiv = document.getElementById("dealer-cards");
+      cardsDiv.innerHTML = "";
+      cards.forEach(c => cardsDiv.appendChild(cardNode(c)));
+      document.getElementById("dealer-total").textContent = `Total: ${total}`;
+    }
+
+    function updateButtons() {
+      const phase = state.phase;
+      const finished = state.finished;
+      const inBetting = phase === "betting" || !state.hands.length;
+
+      document.getElementById("deal").disabled = !inBetting || pendingBet <= 0;
+      document.getElementById("hit").disabled = !(state.can_hit);
+      document.getElementById("stand").disabled = !(state.can_stand);
+      document.getElementById("double").disabled = !(state.can_double);
+      document.getElementById("split").disabled = !(state.can_split);
+      document.getElementById("surrender").disabled = !(state.can_surrender);
+      document.getElementById("insurance").disabled = !(state.can_insure);
+      document.getElementById("next-round").disabled = !(finished);
+    }
+
+    function renderState(s) {
+      state = s;
+      document.getElementById("bankroll").textContent = s.bankroll;
+      document.getElementById("message").textContent = s.message || "";
+
+      renderDealer(s.dealer, s.dealer_total);
+      renderPlayerHands(s.hands, s.hand_totals, s.active_hand);
+
+      document.getElementById("bet-display").textContent = pendingBet;
+
+      updateButtons();
+    }
+
+    async function fetchState() {
+      const res = await fetch("/api/state");
+      const data = await res.json();
+      renderState(data);
+    }
+
+    async function post(path, body) {
+      const res = await fetch(path, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: body ? JSON.stringify(body) : null
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        alert(err.error || "Error");
+        return null;
+      }
+      const data = await res.json();
+      renderState(data);
+      return data;
+    }
+
+    document.querySelectorAll(".chip").forEach(chip => {
+      chip.addEventListener("click", () => {
+        const val = parseInt(chip.dataset.chip, 10);
+        pendingBet += val;
+        document.getElementById("bet-display").textContent = pendingBet;
+        updateButtons();
+      });
+    });
+
+    document.getElementById("deal").onclick = async () => {
+      if (pendingBet <= 0) return;
+      const d = await post("/api/bet", { bet: pendingBet });
+      if (d) pendingBet = 0;
+      document.getElementById("bet-display").textContent = pendingBet;
+    };
+
+    document.getElementById("hit").onclick = () => post("/api/hit");
+    document.getElementById("stand").onclick = () => post("/api/stand");
+    document.getElementById("double").onclick = () => post("/api/double");
+    document.getElementById("split").onclick = () => post("/api/split");
+    document.getElementById("surrender").onclick = () => post("/api/surrender");
+    document.getElementById("insurance").onclick = () => post("/api/insurance");
+    document.getElementById("next-round").onclick = async () => {
+      await fetchState();
+    };
+    document.getElementById("reset").onclick = async () => {
+      pendingBet = 0;
+      document.getElementById("bet-display").textContent = pendingBet;
+      await post("/api/reset");
+    };
+
+    fetchState();
+  </script>
 </body>
 </html>

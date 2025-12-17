@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, session, isonify
+from flask import Flask, render_template, request, session, jsonify
 from datetime import timedelta
 from game import new_deck, hand_value, is_blackjack, to_str
 
@@ -422,5 +422,14 @@ def api_reset():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    import logging
+
+    logging.getLogger("werkzeug").setLevel(logging.ERROR)
+
+    host = "127.0.0.1"
+    port = 5000
+    print(f"http://{host}:{port}")
+
+    app.run(host=host, port=port, debug=True, use_reloader=False)
+
 

@@ -1,0 +1,335 @@
+:root {
+  --felt-dark: #064420;
+  --felt-light: #0c6b33;
+  --accent-gold: #f1c40f;
+  --accent-red: #e74c3c;
+  --card-bg: #fdfdfd;
+}
+
+/* Global */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  background:
+    radial-gradient(circle at 20% 20%, #0f8a3c, #064420 60%) fixed,
+    radial-gradient(circle at 80% 80%, #0c6b33, #02110f 70%) fixed;
+  color: #fff;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+}
+
+/* Table frame */
+
+.table {
+  width: 100%;
+  max-width: 1100px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  border-radius: 32px;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(255,255,255,0.08), transparent 55%),
+    radial-gradient(circle at 50% 120%, rgba(0,0,0,0.55), transparent 60%),
+    linear-gradient(135deg, rgba(255,255,255,0.05), rgba(0,0,0,0.45));
+  box-shadow:
+    0 20px 40px rgba(0,0,0,0.8),
+    0 0 0 8px rgba(0,0,0,0.7);
+}
+
+/* Top bar */
+
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 2px solid rgba(255,255,255,0.2);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  background: rgba(0, 0, 0, 0.35);
+  font-size: 0.95rem;
+}
+
+.bankroll {
+  font-weight: 600;
+}
+
+.message {
+  color: var(--accent-gold);
+  font-weight: 500;
+}
+
+/* Panels */
+
+.dealer-area,
+.player-area {
+  border-radius: 28px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: linear-gradient(
+      135deg,
+      rgba(255,255,255,0.06),
+      rgba(0,0,0,0.35)
+    );
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  padding: 20px 24px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.7);
+}
+
+/* Labels */
+
+.label {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  opacity: 0.95;
+  letter-spacing: 0.16em;
+  color: rgba(255,255,255,0.85);
+}
+
+/* Hands */
+
+.hand-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 8px;
+}
+
+.cards {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  perspective: 800px;
+}
+
+/* Cards */
+
+.card {
+  width: 54px;
+  height: 78px;
+  border-radius: 8px;
+  background: radial-gradient(circle at 30% 20%, #ffffff, #f0f0f0);
+  border: 1px solid rgba(0,0,0,0.25);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.6);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 6px;
+  color: #000;
+  font-weight: 600;
+  transform: rotate(-2deg);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.card:nth-child(even) {
+  transform: rotate(3deg);
+}
+
+.card:hover {
+  transform: translateY(-4px) rotate(0deg);
+  box-shadow: 0 12px 24px rgba(0,0,0,0.8);
+}
+
+.card.red {
+  color: #c0392b;
+}
+
+.card-rank-top {
+  font-size: 0.8rem;
+}
+
+.card-rank-bottom {
+  font-size: 0.8rem;
+  text-align: right;
+  transform: rotate(180deg);
+}
+
+.card-suit {
+  font-size: 1.3rem;
+  text-align: center;
+}
+
+/* Totals */
+
+.total-pill {
+  min-width: 72px;
+  text-align: center;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: radial-gradient(circle at 30% 30%, rgba(0,0,0,0.4), rgba(0,0,0,0.85));
+  font-size: 0.85rem;
+  box-shadow: 0 6px 14px rgba(0,0,0,0.7);
+}
+
+.total-pill.active {
+  border: 1px solid var(--accent-gold);
+  box-shadow: 0 0 12px rgba(241,196,15,0.9);
+}
+
+/* Betting */
+
+.betting-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.bet-circle {
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  border: 3px dashed rgba(0,0,0,0.5);
+  background: radial-gradient(circle at 50% 30%, rgba(0,0,0,0.35), transparent 65%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+}
+
+.bet-amount {
+  font-size: 1.6rem;
+  color: var(--accent-gold);
+}
+
+/* Chips */
+
+.chips {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.chip {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  border: 3px solid rgba(255,255,255,0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  cursor: pointer;
+  background: linear-gradient(135deg, #c0392b, #e74c3c);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.6);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  position: relative;
+}
+
+.chip.blue {
+  background: linear-gradient(135deg, #2980b9, #3498db);
+}
+
+.chip.green {
+  background: linear-gradient(135deg, #27ae60, #2ecc71);
+}
+
+.chip:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(0,0,0,0.7);
+}
+
+.chip::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: inherit;
+  border: 2px solid rgba(241,196,15,0.0);
+  box-shadow: 0 0 0 rgba(241,196,15,0.0);
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.chip:hover::after {
+  border-color: rgba(241,196,15,0.8);
+  box-shadow: 0 0 18px rgba(241,196,15,0.9);
+}
+
+/* Controls and buttons */
+
+.controls {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+button {
+  border-radius: 999px;
+  border: none;
+  padding: 10px 18px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  color: #111;
+  background: #ecf0f1;
+  box-shadow: 0 3px 0 rgba(0,0,0,0.6);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+button.primary {
+  background: var(--accent-gold);
+}
+
+button.danger {
+  background: var(--accent-red);
+  color: #fff;
+}
+
+button:disabled {
+  opacity: 0.4;
+  cursor: default;
+  box-shadow: none;
+}
+
+button:not(:disabled):active {
+  transform: translateY(1px);
+  box-shadow: 0 1px 0 rgba(0,0,0,0.8);
+}
+
+/* Footer */
+
+.footer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+  font-size: 0.8rem;
+  opacity: 0.8;
+}
+
+/* Responsive */
+
+@media (max-width: 720px) {
+  .table {
+    padding: 12px;
+  }
+
+  .card {
+    width: 46px;
+    height: 66px;
+  }
+
+  .bet-circle {
+    width: 130px;
+    height: 130px;
+  }
+
+  .footer {
+    flex-direction: column;
+    gap: 4px;
+  }
+}
